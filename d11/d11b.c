@@ -42,35 +42,33 @@ int	count_occupied_seats(char **stabilized)
 	return (ret);
 }
 
-int	count_adjacent(char **input, int h, int w, char arg)
+int	count_to_direction(char **input, int i, int j, char arg, int dir1, int dir2)
 {
-	char	area[3][3];
+	if (dir1 == 0 && dir2 == 0)
+		return (0);
+	while (1)
+	{
+		i += dir1;
+		j += dir2;
+		if (i < 0 || i == max_h || j < 0 || j == max_w)
+			return (0);
+		if (input[i][j] == arg)
+			return (1);
+		if (input[i][j] == 'L')
+			return (0);
+	}
+}
+
+int	count_visible(char **input, int h, int w, char arg)
+{
 	int	ret = 0;
 
-	area[0][0] = (h && w)			? input[h-1][w-1] : '\0';
-	area[0][1] = (h)			? input[h-1][w] : '\0';
-	area[0][2] = (h && w+1 < max_w)		? input[h-1][w+1]: '\0';
-	area[1][0] = (w)			? input[h][w-1] : '\0';
-	area[1][1] = 				input[h][w];
-	area[1][2] = (w+1 < max_w)		? input[h][w+1] : '\0';
-	area[2][0] = (h+1 < max_h && w)		? input[h+1][w-1] : '\0';
-	area[2][1] = (h+1 < max_h)		? input[h+1][w]: '\0';
-	area[2][2] = (h+1 < max_h && w+1 < max_w)? input[h+1][w+1] : '\0';
-	
-	int	i = 0;
-	int	j;
-	while (i < 3)
+	for (int i = -1; i <= 1; i++)
 	{
-		j = 0;
-		while (j < 3)
+		for (int j = -1; j <= 1; j++)
 		{
-			if (i == 1 && j == 1)
-				j++;
-			if (area[i][j] == arg)
-				ret++;
-			j++;
+			ret += count_to_direction(input, h, w, arg, i, j);
 		}
-		i++;
 	}
 	return (ret);
 }
@@ -89,7 +87,7 @@ int	stabilizer(char **input, char *next)
 		{
 			if (input[i][j] == 'L')
 			{
-				if (count_adjacent(input, i, j, '#') == 0)
+				if (count_visible(input, i, j, '#') == 0)
 				{
 					*(next + k) = '#';
 					changes++;
@@ -97,7 +95,7 @@ int	stabilizer(char **input, char *next)
 			}
 			else if (input[i][j] == '#')
 			{
-			       if (count_adjacent(input, i, j, '#') >= 4)
+			       if (count_visible(input, i, j, '#') >= 5)
 			       {
 					*(next + k) = 'L';
 					changes++;
