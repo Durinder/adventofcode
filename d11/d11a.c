@@ -128,7 +128,6 @@ void	main(int argc, char **argv)
 		max_w = strlen(array[0]);
 		while (array[max_h])
 			max_h++;
-		max_h;
 		char	***states = (char ***)malloc(sizeof(char **) * BUFF_SIZE);
 		if (states)
 		{
