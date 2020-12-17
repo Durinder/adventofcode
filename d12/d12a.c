@@ -48,7 +48,7 @@ void	main(int argc, char **argv)
 	char	*line = (char *)malloc(sizeof(char) * 6);
 	if (!line)
 		exit(EXIT_FAILURE);
-	while (line = fgets(line, 6, f))
+	while (fgets(line, 6, f))
 	{
 		units = strtol(line + 1, NULL, 10);
 		switch (line[0])
@@ -75,8 +75,8 @@ void	main(int argc, char **argv)
 			       turn(&head, units);
 		}
 	}
-	free(line);
 	fclose(f);
+	free(line);
 	int	manhattan[2];
 	manhattan[0] = abs(head.dir[1] - head.dir[3]);
 	manhattan[1] = abs(head.dir[0] - head.dir[2]);
