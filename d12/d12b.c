@@ -4,25 +4,31 @@
 
 struct	position {
 	int	pos[2]; // as X, Y coordinates
-	int	waypoint[2]; // as X, Y coordinates
+	int	waypoint[2]; // E/W == +X/-X, N/S == +Y/-Y
 };
 
-void	turn(struct position *head, int units)
+void	turn(int *wp, int units)
 {
 	if (units % 90 != 0)
 	{
 		perror("revise code");
 		exit(EXIT_FAILURE);
 	}
-	int	tmp;
-
 	units /= 90;
-	while (units)
+	if (units > 3)
 	{
-		tmp = head->waypoint[0];
-		head->waypoint[1] = 0 - head->waypoint[0];
-		head->waypoint[0] = tmp;
-		units += (units > 0) ? -1 : 1;
+		perror("revise code");
+		exit(EXIT_FAILURE);
+	}
+	if (units < 0) // change all L rotations to R for simplicity as
+		units += 4; // 3 to L results in the same as 1 to R, 2 L == 2 R and 1 L == 3 R
+	int	tmp;
+	while (units) // as rot to right N -> E -> S -> W -> N
+	{		// same as +Y -> +X -> -Y -> -X -> +Y
+		tmp = wp[0];
+		wp[0] = wp[1]; // +Y/-Y -> +X/-X
+		wp[1] = tmp * -1; // +X/-X -> -Y/+X
+		units--;
 	}
 }
 
@@ -54,8 +60,8 @@ void	main(int argc, char **argv)
 		switch (line[0])
 		{
 			case ('F'):
-				head.pos[0] += head.pos[0] > 0 ? units * head.waypoint[0] : -1 * (units * head.waypoint[0]);
-				head.pos[1] += head.pos[1] > 0 ? units * head.waypoint[1] : -1 * (units * head.waypoint[1]);
+				head.pos[0] += head.waypoint[0] * units;
+				head.pos[1] += head.waypoint[1] * units;
 				break ;
 			case ('N'):
 				head.waypoint[1] += units;
@@ -70,14 +76,14 @@ void	main(int argc, char **argv)
 				head.waypoint[0] -= units;
 				break ;
 			case ('L'):
-				turn(&head, units * -1);
+				turn(head.waypoint, units * -1);
 				break ;
 			case ('R'):
-				turn(&head, units);
+				turn(head.waypoint, units);
 		}
 	}
 	fclose(f);
 	free(line);
-	printf("current position is:%d + %d = %d\n", abs(head.pos[0]), abs(head.pos[1]), abs(head.pos[0]) + abs(head.pos[1]));
+	printf("current position:%d,%d, Manhattan distance:%d\n", head.pos[0], head.pos[1], abs(head.pos[0]) + abs(head.pos[1]));
 	exit(EXIT_SUCCESS);
 }
